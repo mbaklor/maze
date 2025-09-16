@@ -66,5 +66,13 @@ func (wa *WebApp) RootRouter(r chi.Router) {
 		}
 		tmpl.Execute(w, TemplateInfo{Path: "/"})
 	})
+	r.Get("/about", func(w http.ResponseWriter, r *http.Request) {
+		tmpl, err := template.ParseFiles("templates/base.html", "templates/about.html")
+		if err != nil {
+			wa.logger.Error("error serving page", slog.String("error", err.Error()))
+			http.Error(w, "can't open page: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+		tmpl.Execute(w, TemplateInfo{Path: "/about"})
 	})
 }
