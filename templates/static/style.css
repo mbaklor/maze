@@ -73,19 +73,24 @@ a {
 }
 
 nav ul {
+    --nav-list-gap: 1rem;
+
     list-style: none;
     display: flex;
-    gap: 1rem;
+    gap: var(--nav-list-gap);
 
     & li {
         text-transform: uppercase;
         position: relative;
     }
 
-    & li.current::after {
-        content: "^";
-        position: absolute;
-        right: 50%;
-        top: 100%;
+    & li:has([aria-current="page"])::after {
+        content: "";
+        display: block;
+        width: calc(100% + var(--nav-list-gap));
+        margin-inline-start: calc((var(--nav-list-gap) / 2) * -1);
+        height: 3px;
+        border-radius: 100vw;
+        background-color: aquamarine;
     }
 }

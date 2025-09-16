@@ -9,6 +9,10 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+type TemplateInfo struct {
+	Path string
+}
+
 type WebApp struct {
 	logger *slog.Logger
 	server *http.Server
@@ -54,12 +58,13 @@ func (wa *WebApp) StaticHandler() {}
 
 func (wa *WebApp) RootRouter(r chi.Router) {
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		tmpl, err := template.ParseFiles("templates/index.html")
+		tmpl, err := template.ParseFiles("templates/base.html", "templates/index.html")
 		if err != nil {
 			wa.logger.Error("error serving page", slog.String("error", err.Error()))
 			http.Error(w, "can't open page: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
-		tmpl.Execute(w, nil)
+		tmpl.Execute(w, TemplateInfo{Path: "/"})
+	})
 	})
 }
