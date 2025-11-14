@@ -94,3 +94,9 @@ nav ul {
         background-color: aquamarine;
     }
 }
+
+main {
+    max-width: 100ch;
+    padding-inline: 2rem;
+    margin-inline: auto;
+}
