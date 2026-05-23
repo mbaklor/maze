@@ -10,9 +10,7 @@ import (
 	"strings"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/gomarkdown/markdown"
-	"github.com/gomarkdown/markdown/ast"
-	"github.com/gomarkdown/markdown/html"
+	"github.com/mbaklor/website/md"
 )
 
 type TemplateInfo struct {
@@ -43,7 +41,7 @@ func run(logger *slog.Logger) error {
 	fs := http.StripPrefix("/static/", http.FileServer(http.Dir("templates/static")))
 
 	r.HandleFunc("/static/*", func(w http.ResponseWriter, r *http.Request) {
-		logger.Info("in the static handler")
+		logger.Info("in the static handler", "path", r.URL.Path)
 		fs.ServeHTTP(w, r)
 	})
 
@@ -59,8 +57,6 @@ func (wa *WebApp) LogRequests(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
-
-func (wa *WebApp) StaticHandler() {}
 
 func (wa *WebApp) RootRouter(r chi.Router) {
 	r.Get("/*", func(w http.ResponseWriter, r *http.Request) {
@@ -93,30 +89,10 @@ func (wa *WebApp) RootRouter(r chi.Router) {
 	})
 }
 
-func findHeading(node ast.Node) ast.Node {
-	if heading, ok := node.(*ast.Heading); ok {
-		h := heading.GetChildren()[0].AsLeaf()
-		return h
-	}
-	children := node.GetChildren()
-	if len(children) == 0 {
-		return nil
-	}
-	return findHeading(children[0])
-}
-
-func (wa WebApp) parseMD(tmpl *template.Template, file string) error {
-	wa.logger.Info("parsing markdown file")
-	var f []byte
-	f, err := os.ReadFile(filepath.Join("templates", file))
-	if err != nil {
-		return err
-	}
-	md := markdown.Parse(f, nil)
-	heading := findHeading(md)
-	h1 := heading.(*ast.Leaf).Literal
-	h := markdown.Render(md, html.NewRenderer(html.RendererOptions{}))
-	s := fmt.Sprintf("{{define \"title\"}} Mic's Web - %s {{end}} {{define \"body\"}}\n%s\n{{end}}", h1, h)
+func (wa WebApp) parseMD(tmpl *template.Template, filename string) error {
+	wa.logger.Info("parsing markdown file", "filename", filename)
+	m, err := md.ParseMarkdownFile(filename)
+	s := fmt.Sprintf("{{define \"title\"}} Mic's Web - %s {{end}} {{define \"body\"}}\n%s\n{{end}}", m.Info.Title, m.Content)
 	_, err = tmpl.Parse(string(s))
 	if err != nil {
 		return err
