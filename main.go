@@ -1,10 +1,8 @@
 package main
 
 import (
-	"embed"
 	"fmt"
 	"html/template"
-	"io/fs"
 	"log/slog"
 	"net/http"
 	"os"
@@ -14,9 +12,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/mbaklor/website/md"
 )
-
-//go:embed templates
-var templates embed.FS
 
 type TemplateInfo struct {
 	Path string
@@ -43,8 +38,7 @@ func run(logger *slog.Logger) error {
 	w := WebApp{logger, server}
 	r.Use(w.LogRequests)
 
-	static, err := fs.Sub(templates, "templates/static")
-	fs := http.StripPrefix("/static/", http.FileServerFS(static))
+	fs := http.StripPrefix("/static/", http.FileServer(http.Dir("templates/static")))
 
 	r.HandleFunc("/static/*", func(w http.ResponseWriter, r *http.Request) {
 		logger.Info("in the static handler", "path", r.URL.Path)
@@ -53,7 +47,7 @@ func run(logger *slog.Logger) error {
 
 	r.Route("/", w.RootRouter)
 	w.logger.Info("Started serving", slog.String("address", w.server.Addr))
-	err = w.server.ListenAndServe()
+	err := w.server.ListenAndServe()
 	return err
 }
 
@@ -74,7 +68,7 @@ func (wa *WebApp) RootRouter(r chi.Router) {
 			file = "index.html"
 		}
 		wa.logger.Debug("path information", "page path", pagePath, "file", file)
-		tmpl, err := template.ParseFS(templates, "templates/base.html")
+		tmpl, err := template.ParseFiles("templates/base.html")
 		if err != nil {
 			wa.logger.Error("error serving page, can't open base path", slog.String("error", err.Error()))
 			http.Error(w, "can't open base path: "+err.Error(), http.StatusInternalServerError)
@@ -84,7 +78,7 @@ func (wa *WebApp) RootRouter(r chi.Router) {
 		if filepath.Ext(file) == ".md" {
 			err = wa.parseMD(tmpl, file)
 		} else {
-			_, err = tmpl.ParseFS(templates, filepath.Join("templates", file))
+			_, err = tmpl.ParseFiles(filepath.Join("templates", file))
 		}
 		if err != nil {
 			wa.logger.Error("error serving page", slog.String("error", err.Error()))
@@ -104,4 +98,5 @@ func (wa WebApp) parseMD(tmpl *template.Template, filename string) error {
 		return err
 	}
 	return nil
+
 }
