@@ -6,8 +6,6 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
-	"path/filepath"
-	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/mbaklor/website/md"
@@ -64,14 +62,14 @@ func (wa *WebApp) StaticRouter(r chi.Router) {
 
 func (wa *WebApp) RootRouter(r chi.Router) {
 	r.Get("/*", func(w http.ResponseWriter, r *http.Request) {
-		path := strings.Split(r.PathValue("*"), "/")
-		basePath := strings.Join(path[:len(path)-1], "/")
-		pagePath := path[len(path)-1]
-		file := pagePath + ".md"
-		if path[0] == "" {
-			file = "index.html"
+		path, err := ParseFileFromUrl(r.URL.Path)
+		if err != nil {
+			wa.logger.Error("error serving page, can't parse path from url", slog.String("error", err.Error()))
+			http.Error(w, "can't get path from url: "+err.Error(), http.StatusInternalServerError)
+			return
 		}
-		wa.logger.Debug("path information", "base path", basePath, "page path", pagePath, "file", file)
+
+		wa.logger.Debug("path information", "page path", r.URL.Path, "file", path)
 		tmpl, err := template.ParseFiles("frontend/templates/base.html")
 		if err != nil {
 			wa.logger.Error("error serving page, can't open base path", slog.String("error", err.Error()))
@@ -79,11 +77,7 @@ func (wa *WebApp) RootRouter(r chi.Router) {
 			return
 		}
 
-		if filepath.Ext(file) == ".md" {
-			err = wa.parseMD(tmpl, filepath.Join("frontend", "pages", basePath, file))
-		} else {
-			_, err = tmpl.ParseFiles(filepath.Join("frontend", "pages", file))
-		}
+		err = wa.parseMD(tmpl, path)
 		if err != nil {
 			wa.logger.Error("error serving page", slog.String("error", err.Error()))
 			http.Error(w, "can't open page: "+err.Error(), http.StatusInternalServerError)
