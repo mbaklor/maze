@@ -2,8 +2,10 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 func GetStaticDir() string {
@@ -20,6 +22,14 @@ func ParseFileFromUrl(url string) (string, error) {
 		return filepath.Join(path, "index.md"), nil
 	}
 	return path + ".md", nil
+}
+
+func BasePathFromUrl(url string) string {
+	if url == "/" {
+		return url
+	}
+	s := strings.Split(url, "/")
+	return "/" + s[1]
 }
 
 func pathIsDir(path string) (bool, error) {

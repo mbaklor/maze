@@ -83,7 +83,7 @@ func (wa *WebApp) RootRouter(r chi.Router) {
 			http.Error(w, "can't open page: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
-		tmpl.Execute(w, TemplateInfo{Path: r.URL.Path})
+		tmpl.Execute(w, TemplateInfo{Path: BasePathFromUrl(r.URL.Path)})
 	})
 }
 
