@@ -38,12 +38,7 @@ func run(logger *slog.Logger) error {
 	w := WebApp{logger, server}
 	r.Use(w.LogRequests)
 
-	fs := http.StripPrefix("/static/", http.FileServer(http.Dir("frontend/static")))
-
-	r.HandleFunc("/static/*", func(w http.ResponseWriter, r *http.Request) {
-		logger.Info("in the static handler", "path", r.URL.Path)
-		fs.ServeHTTP(w, r)
-	})
+	r.Route("/static", w.StaticRouter)
 
 	r.Route("/", w.RootRouter)
 	w.logger.Info("Started serving", slog.String("address", w.server.Addr))
@@ -55,6 +50,15 @@ func (wa *WebApp) LogRequests(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		wa.logger.Info("got request from client", slog.String("path", r.URL.Path), slog.String("client_addr", r.RemoteAddr))
 		next.ServeHTTP(w, r)
+	})
+}
+
+func (wa *WebApp) StaticRouter(r chi.Router) {
+	fs := http.StripPrefix("/static/", http.FileServer(http.Dir(GetStaticDir())))
+
+	r.HandleFunc("/*", func(w http.ResponseWriter, r *http.Request) {
+		wa.logger.Info("in the static handler", "path", r.URL.Path)
+		fs.ServeHTTP(w, r)
 	})
 }
 
