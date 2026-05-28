@@ -61,13 +61,13 @@ func (wa *WebApp) LogRequests(next http.Handler) http.Handler {
 func (wa *WebApp) RootRouter(r chi.Router) {
 	r.Get("/*", func(w http.ResponseWriter, r *http.Request) {
 		path := strings.Split(r.PathValue("*"), "/")
-		basePath := path[0]
+		basePath := strings.Join(path[:len(path)-1], "/")
 		pagePath := path[len(path)-1]
 		file := pagePath + ".md"
 		if path[0] == "" {
 			file = "index.html"
 		}
-		wa.logger.Debug("path information", "page path", pagePath, "file", file)
+		wa.logger.Debug("path information", "base path", basePath, "page path", pagePath, "file", file)
 		tmpl, err := template.ParseFiles("templates/base.html")
 		if err != nil {
 			wa.logger.Error("error serving page, can't open base path", slog.String("error", err.Error()))
@@ -76,7 +76,7 @@ func (wa *WebApp) RootRouter(r chi.Router) {
 		}
 
 		if filepath.Ext(file) == ".md" {
-			err = wa.parseMD(tmpl, file)
+			err = wa.parseMD(tmpl, filepath.Join("templates", basePath, file))
 		} else {
 			_, err = tmpl.ParseFiles(filepath.Join("templates", file))
 		}
@@ -85,7 +85,7 @@ func (wa *WebApp) RootRouter(r chi.Router) {
 			http.Error(w, "can't open page: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
-		tmpl.Execute(w, TemplateInfo{Path: "/" + basePath})
+		tmpl.Execute(w, TemplateInfo{Path: r.URL.Path})
 	})
 }
 
