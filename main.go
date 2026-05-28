@@ -38,7 +38,7 @@ func run(logger *slog.Logger) error {
 	w := WebApp{logger, server}
 	r.Use(w.LogRequests)
 
-	fs := http.StripPrefix("/static/", http.FileServer(http.Dir("templates/static")))
+	fs := http.StripPrefix("/static/", http.FileServer(http.Dir("frontend/static")))
 
 	r.HandleFunc("/static/*", func(w http.ResponseWriter, r *http.Request) {
 		logger.Info("in the static handler", "path", r.URL.Path)
@@ -68,7 +68,7 @@ func (wa *WebApp) RootRouter(r chi.Router) {
 			file = "index.html"
 		}
 		wa.logger.Debug("path information", "base path", basePath, "page path", pagePath, "file", file)
-		tmpl, err := template.ParseFiles("templates/base.html")
+		tmpl, err := template.ParseFiles("frontend/templates/base.html")
 		if err != nil {
 			wa.logger.Error("error serving page, can't open base path", slog.String("error", err.Error()))
 			http.Error(w, "can't open base path: "+err.Error(), http.StatusInternalServerError)
@@ -76,9 +76,9 @@ func (wa *WebApp) RootRouter(r chi.Router) {
 		}
 
 		if filepath.Ext(file) == ".md" {
-			err = wa.parseMD(tmpl, filepath.Join("templates", basePath, file))
+			err = wa.parseMD(tmpl, filepath.Join("frontend", "pages", basePath, file))
 		} else {
-			_, err = tmpl.ParseFiles(filepath.Join("templates", file))
+			_, err = tmpl.ParseFiles(filepath.Join("frontend", "pages", file))
 		}
 		if err != nil {
 			wa.logger.Error("error serving page", slog.String("error", err.Error()))
