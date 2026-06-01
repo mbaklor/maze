@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -52,8 +53,19 @@ func pathIsDir(path string) (bool, error) {
 }
 
 func findBase() ([]Link, error) {
-	basePath := filepath.Join("frontend", "pages")
-	dir, err := os.ReadDir(basePath)
+	root := filepath.Join("frontend", "pages")
+	f, err := os.Open(filepath.Join(root, "pages.yml"))
+	if errors.Is(err, os.ErrNotExist) {
+		return readRootDir(root)
+	}
+	if err != nil {
+		return nil, fmt.Errorf("opening paths yaml: %w", err)
+	}
+	return readPathsFile(f)
+}
+
+func readRootDir(root string) ([]Link, error) {
+	dir, err := os.ReadDir(root)
 	if err != nil {
 		return nil, err
 	}
