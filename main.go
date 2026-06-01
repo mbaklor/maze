@@ -63,28 +63,12 @@ func (wa *WebApp) StaticRouter(r chi.Router) {
 
 func (wa *WebApp) RootRouter(r chi.Router) {
 	r.Get("/*", func(w http.ResponseWriter, r *http.Request) {
-		path, err := ParseFileFromUrl(r.URL.Path)
-		if err != nil {
-			wa.logger.Error("error serving page, can't parse path from url", slog.String("error", err.Error()))
-			http.Error(w, "can't get path from url: "+err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		wa.logger.Debug("path information", "page path", r.URL.Path, "file", path)
-		tmpl, err := template.ParseFiles("frontend/templates/base.html")
-		if err != nil {
-			wa.logger.Error("error serving page, can't open base path", slog.String("error", err.Error()))
-			http.Error(w, "can't open base path: "+err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		err = wa.parseMD(tmpl, path)
+		tmpl, err := wa.createTemplate(r.URL.Path)
 		if err != nil {
 			wa.logger.Error("error serving page", slog.String("error", err.Error()))
 			http.Error(w, "can't open page: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
-
 		list, err := findBase()
 		if err != nil {
 			wa.logger.Error("error getting base path contents", slog.String("error", err.Error()))
@@ -95,8 +79,27 @@ func (wa *WebApp) RootRouter(r chi.Router) {
 	})
 }
 
+func (wa WebApp) createTemplate(url string) (*template.Template, error) {
+	path, err := ParseFileFromUrl(url)
+	if err != nil {
+		return nil, fmt.Errorf("getting path from url: %w", err)
+	}
+
+	wa.logger.Debug("path information", "page path", url, "file", path)
+	tmpl, err := template.ParseFiles("frontend/templates/base.html")
+	if err != nil {
+		return nil, fmt.Errorf("opening base path: %w", err)
+	}
+
+	err = wa.parseMD(tmpl, path)
+	if err != nil {
+		return nil, fmt.Errorf("opening and parsing page: %w", err)
+	}
+	return tmpl, nil
+}
+
 func (wa WebApp) parseMD(tmpl *template.Template, filename string) error {
-	wa.logger.Info("parsing markdown file", "filename", filename)
+	wa.logger.Debug("parsing markdown file", "filename", filename)
 	m, err := md.ParseMarkdownFile(filename)
 	s := fmt.Sprintf("{{define \"title\"}} Mic's Web - %s {{end}} {{define \"body\"}}\n%s\n{{end}}", m.Info.Title, m.Content)
 	_, err = tmpl.Parse(string(s))
