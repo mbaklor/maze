@@ -7,6 +7,15 @@ import (
 	"strings"
 )
 
+type Link struct {
+	Path string
+	Name string
+}
+
+func NewLink(path, name string) Link {
+	return Link{Path: path, Name: name}
+}
+
 func GetStaticDir() string {
 	return filepath.Join("frontend", "static")
 }
@@ -40,4 +49,20 @@ func pathIsDir(path string) (bool, error) {
 		return false, err
 	}
 	return st.IsDir(), nil
+}
+
+func findBase() ([]Link, error) {
+	basePath := filepath.Join("frontend", "pages")
+	dir, err := os.ReadDir(basePath)
+	if err != nil {
+		return nil, err
+	}
+	names := make([]Link, 0, len(dir))
+	names = append(names, NewLink("/", "Home"))
+	for _, f := range dir {
+		if f.IsDir() {
+			names = append(names, NewLink("/"+f.Name(), f.Name()))
+		}
+	}
+	return names, nil
 }

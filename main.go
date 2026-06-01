@@ -12,7 +12,8 @@ import (
 )
 
 type TemplateInfo struct {
-	Path string
+	Path  string
+	Links []Link
 }
 
 type WebApp struct {
@@ -83,7 +84,14 @@ func (wa *WebApp) RootRouter(r chi.Router) {
 			http.Error(w, "can't open page: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
-		tmpl.Execute(w, TemplateInfo{Path: BasePathFromUrl(r.URL.Path)})
+
+		list, err := findBase()
+		if err != nil {
+			wa.logger.Error("error getting base path contents", slog.String("error", err.Error()))
+			http.Error(w, "can't open base path contents: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+		tmpl.Execute(w, TemplateInfo{Path: BasePathFromUrl(r.URL.Path), Links: list})
 	})
 }
 

@@ -10,21 +10,21 @@
     <header>
       <nav>
         <ul>
+          {{range .Links}}
           <li>
-              <a href="/"{{if eq .Path "/"}} aria-current="page"{{end}}>
-                  Home
-              </a>
+            <a
+              href="{{.Path}}"
+              {{if
+              eq
+              $.Path
+              .Path}}
+              aria-current="page"
+              {{end}}
+            >
+              {{.Name}}
+            </a>
           </li>
-          <li>
-              <a href="/about"{{if eq .Path "/about"}} aria-current="page"{{end}}>
-                  About
-              </a>
-          </li>
-          <li>
-              <a href="/blog"{{if eq .Path "/blog"}} aria-current="page"{{end}}>
-                  Blog
-              </a>
-          </li>
+          {{end}}
         </ul>
       </nav>
     </header>
