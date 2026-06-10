@@ -1,4 +1,4 @@
-package main
+package paths
 
 import (
 	"errors"
@@ -17,12 +17,8 @@ func NewLink(path, name string) Link {
 	return Link{Path: path, Name: name}
 }
 
-func GetStaticDir() string {
-	return filepath.Join("frontend", "static")
-}
-
-func ParseFileFromUrl(url string) (string, error) {
-	path := filepath.Join("frontend", "pages", url)
+func ParseFileFromUrl(url, root string) (string, error) {
+	path := filepath.Join(root, url)
 	isDir, err := pathIsDir(path)
 	if err != nil {
 		return "", err
@@ -52,8 +48,7 @@ func pathIsDir(path string) (bool, error) {
 	return st.IsDir(), nil
 }
 
-func findBase() ([]Link, error) {
-	root := filepath.Join("frontend", "pages")
+func FindBase(root string) ([]Link, error) {
 	f, err := os.Open(filepath.Join(root, "pages.yml"))
 	if errors.Is(err, os.ErrNotExist) {
 		return readRootDir(root)
