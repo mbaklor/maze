@@ -28,6 +28,9 @@
         </ul>
       </nav>
     </header>
-    <main>{{ template "body" . }}</main>
+    <main>
+      <h1>{{ template "header" . }}</h1>
+      {{ template "body" . }}
+    </main>
   </body>
 </html>

@@ -29,9 +29,7 @@ test body
 - two
 `
 
-const html = `<h1 id="test-heading">test heading</h1>
-
-<p>test body</p>
+const html = `<p>test body</p>
 
 <h2 id="test-subheading">test subheading</h2>
 
@@ -53,6 +51,7 @@ func TestParseMarkdownFile(t *testing.T) {
 	assert.Contains(t, m.Info.Tags, "two")
 	assert.Contains(t, m.Info.Tags, "three")
 
+	assert.Equal(t, "test heading", m.Header)
 	assert.Equal(t, html, string(m.Content))
 }
 
@@ -66,5 +65,6 @@ func TestParseMarkdownString(t *testing.T) {
 	assert.Contains(t, m.Info.Tags, "two")
 	assert.Contains(t, m.Info.Tags, "three")
 
+	assert.Equal(t, "test heading", m.Header)
 	assert.Equal(t, html, string(m.Content))
 }

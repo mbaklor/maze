@@ -9,6 +9,7 @@ import (
 
 	"github.com/adrg/frontmatter"
 	"github.com/gomarkdown/markdown"
+	"github.com/gomarkdown/markdown/ast"
 	"github.com/gomarkdown/markdown/html"
 	"github.com/gomarkdown/markdown/parser"
 )
@@ -22,6 +23,7 @@ type MarkdownInfo struct {
 
 type Markdown struct {
 	Info    MarkdownInfo
+	Header  string
 	Content []byte
 }
 
@@ -39,7 +41,29 @@ func (m *Markdown) parseMarkdown(b []byte) []byte {
 	opts := html.RendererOptions{Flags: htmlFlags}
 	renderer := html.NewRenderer(opts)
 
-	return markdown.Render(doc, renderer)
+	return markdown.Render(m.extractHeader(doc), renderer)
+}
+
+func (m *Markdown) extractHeader(doc ast.Node) ast.Node {
+	var heading *ast.Heading = nil
+	ast.WalkFunc(doc, func(node ast.Node, entering bool) ast.WalkStatus {
+		if heading != nil {
+			if n := node.AsLeaf(); n != nil {
+				m.Header = string(n.Literal)
+				if heading != nil {
+					ast.RemoveFromTree(heading)
+				}
+			}
+			return ast.Terminate
+		}
+		if h, ok := node.(*ast.Heading); ok {
+			if h.Level == 1 {
+				heading = h
+			}
+		}
+		return ast.GoToNext
+	})
+	return doc
 }
 
 func ParseMarkdownString(s string) (Markdown, error) {

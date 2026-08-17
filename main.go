@@ -110,7 +110,7 @@ func (wa WebApp) createTemplate(url string) (*template.Template, error) {
 func (wa WebApp) parseMD(tmpl *template.Template, filename string) error {
 	wa.logger.Debug("parsing markdown file", "filename", filename)
 	m, err := md.ParseMarkdownFile(filename)
-	s := fmt.Sprintf("{{define \"title\"}} Mic's Web - %s {{end}} {{define \"body\"}}\n%s\n{{end}}", m.Info.Title, m.Content)
+	s := fmt.Sprintf("{{define \"title\"}} Mic's Web - %s {{end}} {{define \"header\"}} %s {{end}} {{define \"body\"}}\n%s\n{{end}}", m.Info.Title, m.Header, m.Content)
 	_, err = tmpl.Parse(string(s))
 	if err != nil {
 		return err
