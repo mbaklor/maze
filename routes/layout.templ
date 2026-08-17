@@ -1,0 +1,37 @@
+package routes
+
+templ Page(component templ.Component, info LayoutInfo) {
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<meta charset="UTF-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<link rel="stylesheet" href="/static/reset.css"/>
+			<link rel="stylesheet" href="/static/style.css"/>
+			<title>{ info.Title }</title>
+		</head>
+		<body>
+			<header>
+				<nav>
+					<ul>
+						for _, link := range info.Links {
+							<li>
+								<a
+									href={ link.Path }
+									if info.BasePath == link.Path {
+										aria-current="page"
+									}
+								>
+									{ link.Name }
+								</a>
+							</li>
+						}
+					</ul>
+				</nav>
+			</header>
+			<main>
+				@component
+			</main>
+		</body>
+	</html>
+}

@@ -1,0 +1,15 @@
+package pages
+
+import "github.com/mbaklor/website/md"
+
+templ view(m md.Markdown) {
+	<header class="main-heading">
+		<h1>{ m.Header }</h1>
+		if !m.Info.Date.IsZero() {
+			<div class="undertext">{ m.Info.Date.Format("2006/01/02") }</div>
+		}
+	</header>
+	<div class="contents">
+		@templ.Raw(string(m.Content))
+	</div>
+}

@@ -1,15 +1,13 @@
 package main
 
 import (
-	"fmt"
-	"html/template"
 	"log/slog"
 	"net/http"
 	"os"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/mbaklor/website/md"
 	"github.com/mbaklor/website/paths"
+	"github.com/mbaklor/website/routes/pages"
 )
 
 type TemplateInfo struct {
@@ -63,50 +61,5 @@ func (wa *WebApp) StaticRouter(r chi.Router) {
 }
 
 func (wa *WebApp) RootRouter(r chi.Router) {
-	r.Get("/*", func(w http.ResponseWriter, r *http.Request) {
-		tmpl, err := wa.createTemplate(r.URL.Path)
-		if err != nil {
-			wa.logger.Error("error serving page", slog.String("error", err.Error()))
-			http.Error(w, "can't open page: "+err.Error(), http.StatusInternalServerError)
-			return
-		}
-		list, err := paths.FindBase(paths.FrontendPath("pages"))
-		if err != nil {
-			wa.logger.Error("error getting base path contents", slog.String("error", err.Error()))
-			http.Error(w, "can't open base path contents: "+err.Error(), http.StatusInternalServerError)
-			return
-		}
-		tmpl.Execute(w, TemplateInfo{Path: paths.BasePathFromUrl(r.URL.Path), Links: list})
-	})
-}
-
-func (wa WebApp) createTemplate(url string) (*template.Template, error) {
-	path, err := paths.ParseFileFromUrl(url, paths.FrontendPath("pages"))
-	if err != nil {
-		return nil, fmt.Errorf("getting path from url: %w", err)
-	}
-
-	wa.logger.Debug("path information", "page path", url, "file", path)
-	tmpl, err := template.ParseFiles("frontend/templates/base.html")
-	if err != nil {
-		return nil, fmt.Errorf("opening base path: %w", err)
-	}
-
-	err = wa.parseMD(tmpl, path)
-	if err != nil {
-		return nil, fmt.Errorf("opening and parsing page: %w", err)
-	}
-	return tmpl, nil
-}
-
-func (wa WebApp) parseMD(tmpl *template.Template, filename string) error {
-	wa.logger.Debug("parsing markdown file", "filename", filename)
-	m, err := md.ParseMarkdownFile(filename)
-	s := fmt.Sprintf("{{define \"title\"}} Mic's Web - %s {{end}} {{define \"header\"}} %s {{end}} {{define \"body\"}}\n%s\n{{end}}", m.Info.Title, m.Header, m.Content)
-	_, err = tmpl.Parse(string(s))
-	if err != nil {
-		return err
-	}
-	return nil
-
+	r.Get("/*", pages.Handler(wa.logger))
 }
