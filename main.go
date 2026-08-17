@@ -6,7 +6,6 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
-	"path/filepath"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/mbaklor/website/md"
@@ -21,13 +20,6 @@ type TemplateInfo struct {
 type WebApp struct {
 	logger *slog.Logger
 	server *http.Server
-}
-
-func FrontendPath(p ...string) string {
-	elems := make([]string, 0, len(p)+1)
-	elems = append(elems, "frontend")
-	elems = append(elems, p...)
-	return filepath.Join(elems...)
 }
 
 func main() {
@@ -62,7 +54,7 @@ func (wa *WebApp) LogRequests(next http.Handler) http.Handler {
 }
 
 func (wa *WebApp) StaticRouter(r chi.Router) {
-	fs := http.StripPrefix("/static/", http.FileServer(http.Dir(FrontendPath("static"))))
+	fs := http.StripPrefix("/static/", http.FileServer(http.Dir(paths.FrontendPath("static"))))
 
 	r.HandleFunc("/*", func(w http.ResponseWriter, r *http.Request) {
 		wa.logger.Info("in the static handler", "path", r.URL.Path)
@@ -78,7 +70,7 @@ func (wa *WebApp) RootRouter(r chi.Router) {
 			http.Error(w, "can't open page: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
-		list, err := paths.FindBase(FrontendPath("pages"))
+		list, err := paths.FindBase(paths.FrontendPath("pages"))
 		if err != nil {
 			wa.logger.Error("error getting base path contents", slog.String("error", err.Error()))
 			http.Error(w, "can't open base path contents: "+err.Error(), http.StatusInternalServerError)
@@ -89,7 +81,7 @@ func (wa *WebApp) RootRouter(r chi.Router) {
 }
 
 func (wa WebApp) createTemplate(url string) (*template.Template, error) {
-	path, err := paths.ParseFileFromUrl(url, FrontendPath("pages"))
+	path, err := paths.ParseFileFromUrl(url, paths.FrontendPath("pages"))
 	if err != nil {
 		return nil, fmt.Errorf("getting path from url: %w", err)
 	}

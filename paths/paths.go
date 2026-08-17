@@ -17,6 +17,13 @@ func NewLink(path, name string) Link {
 	return Link{Path: path, Name: name}
 }
 
+func FrontendPath(p ...string) string {
+	elems := make([]string, 0, len(p)+1)
+	elems = append(elems, "frontend")
+	elems = append(elems, p...)
+	return filepath.Join(elems...)
+}
+
 func ParseFileFromUrl(url, root string) (string, error) {
 	path := filepath.Join(root, url)
 	isDir, err := pathIsDir(path)
