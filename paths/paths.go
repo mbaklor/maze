@@ -8,6 +8,11 @@ import (
 	"strings"
 )
 
+// A Link is a representation of an html anchor, that has a Path where it leads
+// and a Name as its label
+//
+// For example a link to the root url would be
+// `Link{Path: "/", Name: "Home"}`
 type Link struct {
 	Path string
 	Name string
@@ -17,13 +22,18 @@ func NewLink(path, name string) Link {
 	return Link{Path: path, Name: name}
 }
 
+// Joins file paths, appending the project's frontend directory
 func FrontendPath(p ...string) string {
+	// TODO: use a configurable path, config file or env var?
 	elems := make([]string, 0, len(p)+1)
 	elems = append(elems, "frontend")
 	elems = append(elems, p...)
 	return filepath.Join(elems...)
 }
 
+// Returns the filename associated with a given URL path
+// if the URL path has a corrosponding directory in the frontend file tree,
+// returns `index.md`, otherwise `[path].md`
 func ParseFileFromUrl(url, root string) (string, error) {
 	path := filepath.Join(root, url)
 	isDir, err := pathIsDir(path)
@@ -36,6 +46,8 @@ func ParseFileFromUrl(url, root string) (string, error) {
 	return path + ".md", nil
 }
 
+// Returns the first part of the URL path, useful to mark the location in
+// the site navigation
 func BasePathFromUrl(url string) string {
 	if url == "/" {
 		return url
@@ -55,7 +67,9 @@ func pathIsDir(path string) (bool, error) {
 	return st.IsDir(), nil
 }
 
-func FindBase(root string) ([]Link, error) {
+// Returns a slice of Links that come either from a `pages.yml` file or from
+// reading the directory tree of the frontend files
+func GenerateBaseLinks(root string) ([]Link, error) {
 	f, err := os.Open(filepath.Join(root, "pages.yml"))
 	if errors.Is(err, os.ErrNotExist) {
 		return readRootDir(root)

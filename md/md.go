@@ -66,11 +66,13 @@ func (m *Markdown) extractHeader(doc ast.Node) ast.Node {
 	return doc
 }
 
+// Returns a Markdown struct from a string
 func ParseMarkdownString(s string) (Markdown, error) {
 	r := strings.NewReader(s)
 	return parse(r)
 }
 
+// Returns a Markdown struct from a file on the filesystem
 func ParseMarkdownFile(filename string) (Markdown, error) {
 	f, err := os.Open(filename)
 	if err != nil {

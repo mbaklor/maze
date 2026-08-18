@@ -18,7 +18,7 @@ func NewLayoutInfo(title string, basePath string) LayoutInfo {
 }
 
 func (l *LayoutInfo) GenerateLinks() error {
-	links, err := paths.FindBase(paths.FrontendPath("pages"))
+	links, err := paths.GenerateBaseLinks(paths.FrontendPath("pages"))
 	if err != nil {
 		return err
 	}
