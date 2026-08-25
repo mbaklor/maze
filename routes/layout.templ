@@ -8,7 +8,12 @@ templ Page(component templ.Component, info LayoutInfo) {
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 			<link rel="stylesheet" href="/static/reset.css"/>
 			<link rel="stylesheet" href="/static/style.css"/>
-			<title>{ info.Title }</title>
+			<title>
+				if info.Title != "" {
+					{ info.Title } -
+				}
+				Mic's Web
+			</title>
 		</head>
 		<body>
 			<header>
