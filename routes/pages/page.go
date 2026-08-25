@@ -10,12 +10,16 @@ import (
 	"github.com/mbaklor/website/paths"
 	"github.com/mbaklor/website/routes"
 	"github.com/mbaklor/website/routes/pages/notfound"
+	"github.com/mbaklor/website/routes/pages/servererror"
 )
 
 func Handler(logger *slog.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		filename, err := paths.ParseFileFromUrl(r.URL.Path, paths.FrontendPath("pages"))
 		if err != nil {
+			s := servererror.Handler(logger, err)
+			w.WriteHeader(http.StatusInternalServerError)
+			s.ServeHTTP(w, r)
 			return
 		}
 
@@ -25,7 +29,10 @@ func Handler(logger *slog.Logger) http.HandlerFunc {
 				s := notfound.Handler(logger)
 				w.WriteHeader(http.StatusNotFound)
 				s.ServeHTTP(w, r)
+				return
 			}
+			s := servererror.Handler(logger, err)
+			s.ServeHTTP(w, r)
 			return
 		}
 		info := routes.NewLayoutInfo(m.Info.Title, paths.BasePathFromUrl(r.URL.Path))

@@ -1,0 +1,16 @@
+package servererror
+
+templ view(err string) {
+	<header class="main-heading">
+		<h1>Server Error</h1>
+	</header>
+	<div class="content">
+		Not entirely sure what happened here, but if you got here please tell me.
+		<br/>
+		For this to work I might need this following information:
+		<br/>
+		<pre>
+			{ err }
+		</pre>
+	</div>
+}
