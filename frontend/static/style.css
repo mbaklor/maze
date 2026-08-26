@@ -1,5 +1,5 @@
 :root {
-    color-scheme: dark light;
+    color-scheme: light dark;
     font-family:
         system-ui,
         -apple-system,
@@ -12,6 +12,49 @@
         "Open Sans",
         "Helvetica Neue",
         sans-serif;
+}
+
+:root {
+    --theme: light;
+
+    @media (prefers-color-scheme: dark) {
+        --theme: dark;
+    }
+}
+
+body[data-theme="light"] {
+    --theme: light;
+}
+
+body[data-theme="dark"] {
+    --theme: dark;
+}
+
+body {
+    --clr-border: hsl(0 0 5);
+
+    @container style(--theme: light) {
+        --clr-text: hsl(248 20 8);
+        --clr-bg: hsl(255 11 93);
+        --clr-surface: hsl(255 25 95);
+        --clr-primary: hsl(280 91 29);
+        --clr-secondary: hsl(3 90 69);
+        --clr-accent: hsl(81 99 47);
+    }
+
+    @container style(--theme: dark) {
+        --clr-text: hsl(248 20 92);
+        --clr-bg: hsl(255 11 7);
+        --clr-surface: hsl(255 25 5);
+        --clr-primary: hsl(280 91 71);
+        --clr-secondary: hsl(3 90 31);
+        --clr-accent: hsl(81 99 53);
+    }
+}
+
+body {
+    background-color: var(--clr-bg);
+    color: var(--clr-text);
 }
 
 h1 {
@@ -31,9 +74,21 @@ h2 {
     margin-block: 1rem;
 }
 
+#navigation-header {
+    background: var(--clr-surface);
+    padding: 1rem 2rem;
+    border-bottom: 1px solid var(--clr-border);
+    margin-bottom: 0.5rem;
+    position: sticky;
+    top: 0;
+
+    display: flex;
+    justify-content: space-between;
+}
+
 a {
     text-decoration: none;
-    color: aquamarine;
+    color: var(--clr-primary);
 }
 
 nav ul {
@@ -55,7 +110,17 @@ nav ul {
         margin-inline-start: calc((var(--nav-list-gap) / 2) * -1);
         height: 3px;
         border-radius: 100vw;
-        background-color: aquamarine;
+        background-color: var(--clr-primary);
+    }
+}
+
+.theme-chooser {
+    font-size: 1.25rem;
+    display: flex;
+    gap: 0.5rem;
+
+    & i {
+        color: var(--clr-accent);
     }
 }
 

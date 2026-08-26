@@ -8,6 +8,7 @@ templ Page(component templ.Component, info LayoutInfo) {
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 			<link rel="stylesheet" href="/static/reset.css"/>
 			<link rel="stylesheet" href="/static/style.css"/>
+			<link rel="stylesheet" href="https://unpkg.com/lucide-static@latest/font/lucide.css"/>
 			<title>
 				if info.Title != "" {
 					{ info.Title } -
@@ -16,8 +17,8 @@ templ Page(component templ.Component, info LayoutInfo) {
 			</title>
 		</head>
 		<body>
-			<header>
-				<nav>
+			<header id="navigation-header">
+				<nav id="main-navigation">
 					<ul>
 						for _, link := range info.Links {
 							<li>
@@ -33,6 +34,11 @@ templ Page(component templ.Component, info LayoutInfo) {
 						}
 					</ul>
 				</nav>
+				<div class="theme-chooser">
+					<button><i class="icon-sun-moon"></i></button>
+					<button><i class="icon-sun"></i></button>
+					<button><i class="icon-moon"></i></button>
+				</div>
 			</header>
 			<main>
 				@component
