@@ -6,8 +6,8 @@ import (
 	"os"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/mbaklor/website/paths"
-	"github.com/mbaklor/website/routes/pages"
+	"github.com/mbaklor/maze/paths"
+	"github.com/mbaklor/maze/routes/pages"
 )
 
 type TemplateInfo struct {

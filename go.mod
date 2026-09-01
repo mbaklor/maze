@@ -1,4 +1,4 @@
-module github.com/mbaklor/website
+module github.com/mbaklor/maze
 
 go 1.25.0
 

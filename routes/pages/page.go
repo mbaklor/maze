@@ -6,11 +6,11 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/mbaklor/website/md"
-	"github.com/mbaklor/website/paths"
-	"github.com/mbaklor/website/routes"
-	"github.com/mbaklor/website/routes/pages/notfound"
-	"github.com/mbaklor/website/routes/pages/servererror"
+	"github.com/mbaklor/maze/md"
+	"github.com/mbaklor/maze/paths"
+	"github.com/mbaklor/maze/routes"
+	"github.com/mbaklor/maze/routes/pages/notfound"
+	"github.com/mbaklor/maze/routes/pages/servererror"
 )
 
 func Handler(logger *slog.Logger) http.HandlerFunc {

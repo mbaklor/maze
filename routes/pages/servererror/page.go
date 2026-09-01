@@ -4,8 +4,8 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/mbaklor/website/paths"
-	"github.com/mbaklor/website/routes"
+	"github.com/mbaklor/maze/paths"
+	"github.com/mbaklor/maze/routes"
 )
 
 func Handler(logger *slog.Logger, serverErr error) http.HandlerFunc {

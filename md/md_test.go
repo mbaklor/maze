@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mbaklor/website/md"
+	"github.com/mbaklor/maze/md"
 	"github.com/stretchr/testify/assert"
 )
 

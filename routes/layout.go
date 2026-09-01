@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/a-h/templ"
-	"github.com/mbaklor/website/paths"
+	"github.com/mbaklor/maze/paths"
 )
 
 type LayoutInfo struct {
