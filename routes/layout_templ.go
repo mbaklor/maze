@@ -29,7 +29,7 @@ func Page(component templ.Component, info LayoutInfo) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!doctype html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><link rel=\"stylesheet\" href=\"/static/reset.css\"><link rel=\"stylesheet\" href=\"/static/style.css\"><link rel=\"stylesheet\" href=\"https://unpkg.com/lucide-static@latest/font/lucide.css\"><title>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!doctype html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><link rel=\"stylesheet\" href=\"/static/reset.css\"><link rel=\"stylesheet\" href=\"/static/style.css\"><link rel=\"stylesheet\" href=\"https://unpkg.com/lucide-static@latest/font/lucide.css\"><script src=\"/static/script.js\" defer></script><script>\n                let currentTheme = localStorage.getItem(\"theme\") || \"system\"\n                if (currentTheme !== \"system\") {\n                    document.documentElement.style.setProperty(\"color-scheme\", currentTheme);\n                    document.documentElement.style.setProperty(\"--theme\", currentTheme)\n                }\n            </script><title>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -37,7 +37,7 @@ func Page(component templ.Component, info LayoutInfo) templ.Component {
 			var templ_7745c5c3_Var2 string
 			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(info.Title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `routes/layout.templ`, Line: 14, Col: 17}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `routes/layout.templ`, Line: 22, Col: 17}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 			if templ_7745c5c3_Err != nil {
@@ -48,7 +48,7 @@ func Page(component templ.Component, info LayoutInfo) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "Mic's Web</title></head><body><header id=\"navigation-header\"><nav id=\"main-navigation\"><ul>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "Mic's Web</title></head><body><header id=\"navigation-header\"><img alt=\"\" src=\"\"><nav id=\"main-navigation\"><ul>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -60,7 +60,7 @@ func Page(component templ.Component, info LayoutInfo) templ.Component {
 			var templ_7745c5c3_Var3 templ.SafeURL
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinURLErrs(link.Path)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `routes/layout.templ`, Line: 26, Col: 25}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `routes/layout.templ`, Line: 36, Col: 25}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -83,7 +83,7 @@ func Page(component templ.Component, info LayoutInfo) templ.Component {
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(link.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `routes/layout.templ`, Line: 31, Col: 20}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `routes/layout.templ`, Line: 41, Col: 20}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -94,7 +94,7 @@ func Page(component templ.Component, info LayoutInfo) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</ul></nav><div class=\"theme-chooser\"><button><i class=\"icon-sun-moon\"></i></button> <button><i class=\"icon-sun\"></i></button> <button><i class=\"icon-moon\"></i></button></div></header><main>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</ul></nav><div class=\"theme-chooser\"><div class=\"theme-picker-inputs\" hidden=\"hidden\"><input type=\"radio\" name=\"theme\" id=\"theme-picker-system\" value=\"system\"> <input type=\"radio\" name=\"theme\" id=\"theme-picker-light\" value=\"light\"> <input type=\"radio\" name=\"theme\" id=\"theme-picker-dark\" value=\"dark\"></div><button class=\"btn secondary\" onclick=\"switchTheme()\" id=\"theme-picker-button\"><i class=\"icon-sun-moon\" aria-label=\"Follow system theme\"></i> <i class=\"icon-moon\" aria-label=\"Dark theme\"></i> <i class=\"icon-sun\" aria-label=\"Light theme\"></i></button></div></header><main>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -22,11 +22,13 @@
     }
 }
 
-body[data-theme="light"] {
+:root:has([value="light"]:checked) {
+    color-scheme: light;
     --theme: light;
 }
 
-body[data-theme="dark"] {
+:root:has([value="dark"]:checked) {
+    color-scheme: dark;
     --theme: dark;
 }
 
@@ -38,8 +40,8 @@ body {
         --clr-bg: hsl(255 11 93);
         --clr-surface: hsl(255 25 95);
         --clr-primary: hsl(280 91 29);
-        --clr-secondary: hsl(3 90 69);
-        --clr-accent: hsl(81 99 47);
+        --clr-secondary: hsl(3 90 39);
+        --clr-accent: hsl(81 99 35);
     }
 
     @container style(--theme: dark) {
@@ -47,7 +49,7 @@ body {
         --clr-bg: hsl(255 11 7);
         --clr-surface: hsl(255 25 5);
         --clr-primary: hsl(280 91 71);
-        --clr-secondary: hsl(3 90 31);
+        --clr-secondary: hsl(3 90 45);
         --clr-accent: hsl(81 99 53);
     }
 }
@@ -55,6 +57,10 @@ body {
 body {
     background-color: var(--clr-bg);
     color: var(--clr-text);
+}
+
+i {
+    color: inherit;
 }
 
 h1 {
@@ -116,16 +122,57 @@ nav ul {
 
 .theme-chooser {
     font-size: 1.25rem;
-    display: flex;
-    gap: 0.5rem;
 
-    & i {
-        color: var(--clr-accent);
+    & i:not(.icon-sun-moon) {
+        display: none;
     }
+
+    & i.icon-sun-moon {
+        display: inline;
+    }
+}
+
+:root:has([value="light"]:checked) .theme-chooser {
+    & i:not(.icon-sun) {
+        display: none;
+    }
+
+    & i.icon-sun {
+        display: inline;
+    }
+}
+
+:root:has([value="dark"]:checked) .theme-chooser {
+    & i:not(.icon-moon) {
+        display: none;
+    }
+
+    & i.icon-moon {
+        display: inline;
+    }
+}
+
+.theme-chooser button {
+    display: flex;
+    align-items: center;
 }
 
 main {
     max-width: 100ch;
     padding-inline: 2rem;
     margin-inline: auto;
+}
+
+.btn {
+    padding: 0.25rem 0.65rem;
+    border-radius: 5px;
+}
+
+button.secondary {
+    background-color: var(--clr-secondary);
+    color: contrast-color(var(--clr-secondary));
+
+    &:hover {
+        background-color: hsl(from var(--clr-secondary) h s calc(l + 15));
+    }
 }

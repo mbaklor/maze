@@ -9,6 +9,14 @@ templ Page(component templ.Component, info LayoutInfo) {
 			<link rel="stylesheet" href="/static/reset.css"/>
 			<link rel="stylesheet" href="/static/style.css"/>
 			<link rel="stylesheet" href="https://unpkg.com/lucide-static@latest/font/lucide.css"/>
+			<script src="/static/script.js" defer></script>
+			<script>
+                let currentTheme = localStorage.getItem("theme") || "system"
+                if (currentTheme !== "system") {
+                    document.documentElement.style.setProperty("color-scheme", currentTheme);
+                    document.documentElement.style.setProperty("--theme", currentTheme)
+                }
+            </script>
 			<title>
 				if info.Title != "" {
 					{ info.Title } -
@@ -18,6 +26,8 @@ templ Page(component templ.Component, info LayoutInfo) {
 		</head>
 		<body>
 			<header id="navigation-header">
+				// TODO: this will be a site logo? pulled from `static/logo.png` so it can be dynamic?
+				<img alt="" src=""/>
 				<nav id="main-navigation">
 					<ul>
 						for _, link := range info.Links {
@@ -35,9 +45,16 @@ templ Page(component templ.Component, info LayoutInfo) {
 					</ul>
 				</nav>
 				<div class="theme-chooser">
-					<button><i class="icon-sun-moon"></i></button>
-					<button><i class="icon-sun"></i></button>
-					<button><i class="icon-moon"></i></button>
+					<div class="theme-picker-inputs" hidden="hidden">
+						<input type="radio" name="theme" id="theme-picker-system" value="system"/>
+						<input type="radio" name="theme" id="theme-picker-light" value="light"/>
+						<input type="radio" name="theme" id="theme-picker-dark" value="dark"/>
+					</div>
+					<button class="btn secondary" onclick="switchTheme()" id="theme-picker-button">
+						<i class="icon-sun-moon" aria-label="Follow system theme"></i>
+						<i class="icon-moon" aria-label="Dark theme"></i>
+						<i class="icon-sun" aria-label="Light theme"></i>
+					</button>
 				</div>
 			</header>
 			<main>
