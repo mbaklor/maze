@@ -14,11 +14,31 @@ import (
 	"github.com/gomarkdown/markdown/parser"
 )
 
+type markdownDate struct {
+	time.Time
+}
+
+func (m markdownDate) MarshalYAML() (any, error) {
+	s := m.Time.Format("2006-01-02")
+	return s, nil
+}
+
+func (m *markdownDate) UnmarshalYAML(unmarshal func(any) error) error {
+	var s time.Time
+	err := unmarshal(&s)
+	if err != nil {
+		return err
+	}
+	m.Time = s
+	return nil
+}
+
 type MarkdownInfo struct {
-	Slug  string
-	Title string
-	Date  time.Time
-	Tags  []string
+	Slug        string       `yaml:"slug,omitempty"`
+	Title       string       `yaml:"title,omitempty"`
+	Description string       `yaml:"description,omitempty"`
+	Date        markdownDate `yaml:"date,omitempty"`
+	Tags        []string     `yaml:"tags,omitempty"`
 }
 
 type Markdown struct {
