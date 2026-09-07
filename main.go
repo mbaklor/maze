@@ -1,6 +1,8 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
@@ -20,14 +22,52 @@ type WebApp struct {
 	server *http.Server
 }
 
+const version = "0.0.1"
+
+const usage = `Maze: dynamic markdown static page server
+version ` + version + `
+
+USAGE
+maze [option] [flags]
+
+OPTIONS
+serve			start the HTTP server
+version			print application version
+
+GLOBAL FLAGS
+--help	-h		Print this usage message`
+
 func main() {
+	flag.Usage = func() {
+		fmt.Fprintln(os.Stderr, usage)
+	}
+	if len(os.Args) == 1 {
+		serve()
+		return
+	}
+	command := os.Args[1]
+	switch command {
+	case "serve":
+		serve()
+	case "version":
+		printVersion()
+	default:
+		flag.Usage()
+	}
+}
+
+func printVersion() {
+	fmt.Fprintf(os.Stderr, "maze version: %s\n", version)
+}
+
+func serve() {
 	logger := slog.New(slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelDebug}))
-	if err := run(logger); err != nil {
+	if err := runServer(logger); err != nil {
 		logger.Error("App can't run!", slog.String("error", err.Error()))
 	}
 }
 
-func run(logger *slog.Logger) error {
+func runServer(logger *slog.Logger) error {
 	r := chi.NewRouter()
 	server := &http.Server{
 		Handler: r,
