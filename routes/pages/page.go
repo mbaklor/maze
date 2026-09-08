@@ -24,13 +24,11 @@ func Handler(logger *slog.Logger) http.HandlerFunc {
 		}
 
 		m, err := md.ParseMarkdownFile(filename)
+		if errors.Is(err, os.ErrNotExist) {
+			handleNotExist(logger, filename, w, r)
+			return
+		}
 		if err != nil {
-			if errors.Is(err, os.ErrNotExist) {
-				s := notfound.Handler(logger)
-				w.WriteHeader(http.StatusNotFound)
-				s.ServeHTTP(w, r)
-				return
-			}
 			s := servererror.Handler(logger, err)
 			s.ServeHTTP(w, r)
 			return
@@ -44,4 +42,10 @@ func Handler(logger *slog.Logger) http.HandlerFunc {
 		l := routes.Layout(view(m), info)
 		l.ServeHTTP(w, r)
 	}
+}
+
+func handleNotExist(logger *slog.Logger, filename string, w http.ResponseWriter, r *http.Request) {
+	s := notfound.Handler(logger)
+	w.WriteHeader(http.StatusNotFound)
+	s.ServeHTTP(w, r)
 }
