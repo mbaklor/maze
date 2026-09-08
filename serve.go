@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"flag"
 	"log/slog"
 	"net/http"
 	"os"
@@ -25,7 +26,26 @@ type WebApp struct {
 	server *http.Server
 }
 
-func serve() {
+const serveUsage = `Maze: dynamic markdown static page server
+version ` + version + `
+
+USAGE
+maze serve [flags]
+
+FLAGS
+-c	--config	Path to server config file (default: "config.yml")
+
+GLOBAL FLAGS
+-h	--help		Print this usage message`
+
+func serve(args []string) {
+	set := flag.NewFlagSet("serve", flag.ExitOnError)
+	set.Usage = UsageFunc(serveUsage)
+	var configPath string
+	set.StringVar(&configPath, "config", "config.yml", "path to server config file")
+	set.StringVar(&configPath, "c", "config.yml", "path to server config file")
+
+	set.Parse(args)
 	logger := slog.New(slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelDebug}))
 	if err := runServer(logger); err != nil {
 		logger.Error("App can't run!", slog.String("error", err.Error()))
