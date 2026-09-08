@@ -1,11 +1,16 @@
 package main
 
 import (
+	"context"
+	"errors"
 	"flag"
 	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/mbaklor/maze/paths"
@@ -68,6 +73,8 @@ func serve() {
 }
 
 func runServer(logger *slog.Logger) error {
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
 	r := chi.NewRouter()
 	server := &http.Server{
 		Handler: r,
@@ -80,8 +87,19 @@ func runServer(logger *slog.Logger) error {
 
 	r.Route("/", w.RootRouter)
 	w.logger.Info("Started serving", slog.String("address", w.server.Addr))
+	var shutdownErr error
+	go func() {
+		<-ctx.Done()
+		w.logger.Info("server shutdown requested")
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+		defer cancel()
+		shutdownErr = w.server.Shutdown(ctx)
+	}()
 	err := w.server.ListenAndServe()
-	return err
+	if err != nil && err != http.ErrServerClosed {
+		return errors.Join(err, shutdownErr)
+	}
+	return nil
 }
 
 func (wa *WebApp) LogRequests(next http.Handler) http.Handler {
