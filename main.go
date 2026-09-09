@@ -12,7 +12,7 @@ func UsageFunc(s string) func() {
 	}
 }
 
-const version = "0.0.1"
+const version = "0.0.2"
 
 const usage = `Maze: dynamic markdown static page server
 version ` + version + `

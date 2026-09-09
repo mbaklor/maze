@@ -22,15 +22,6 @@ func NewLink(path, name string) Link {
 	return Link{Path: path, Name: name}
 }
 
-// Joins file paths, appending the project's frontend directory
-func FrontendPath(p ...string) string {
-	// TODO: use a configurable path, config file or env var?
-	elems := make([]string, 0, len(p)+1)
-	elems = append(elems, "frontend")
-	elems = append(elems, p...)
-	return filepath.Join(elems...)
-}
-
 // Returns the filename associated with a given URL path
 // if the URL path has a corrosponding directory in the frontend file tree,
 // returns `index.md`, otherwise `[path].md`

@@ -14,6 +14,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/mbaklor/maze/paths"
 	"github.com/mbaklor/maze/routes/pages"
+	"github.com/mbaklor/maze/settings"
 )
 
 type TemplateInfo struct {
@@ -24,6 +25,7 @@ type TemplateInfo struct {
 type WebApp struct {
 	logger *slog.Logger
 	server *http.Server
+	config settings.Settings
 }
 
 const serveUsage = `Maze: dynamic markdown static page server
@@ -47,12 +49,12 @@ func serve(args []string) {
 
 	set.Parse(args)
 	logger := slog.New(slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelDebug}))
-	if err := runServer(logger); err != nil {
+	if err := runServer(logger, configPath); err != nil {
 		logger.Error("App can't run!", slog.String("error", err.Error()))
 	}
 }
 
-func runServer(logger *slog.Logger) error {
+func runServer(logger *slog.Logger, configFile string) error {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 	r := chi.NewRouter()
@@ -60,7 +62,12 @@ func runServer(logger *slog.Logger) error {
 		Handler: r,
 		Addr:    ":9753",
 	}
-	w := WebApp{logger, server}
+	config, err := settings.ReadSettings(configFile)
+	if err != nil {
+		return err
+	}
+
+	w := WebApp{logger, server, config}
 	r.Use(w.LogRequests)
 
 	r.Route("/static", w.StaticRouter)
@@ -75,7 +82,7 @@ func runServer(logger *slog.Logger) error {
 		defer cancel()
 		shutdownErr = w.server.Shutdown(ctx)
 	}()
-	err := w.server.ListenAndServe()
+	err = w.server.ListenAndServe()
 	if err != nil && err != http.ErrServerClosed {
 		return errors.Join(err, shutdownErr)
 	}
@@ -90,7 +97,7 @@ func (wa *WebApp) LogRequests(next http.Handler) http.Handler {
 }
 
 func (wa *WebApp) StaticRouter(r chi.Router) {
-	fs := http.StripPrefix("/static/", http.FileServer(http.Dir(paths.FrontendPath("static"))))
+	fs := http.StripPrefix("/static/", http.FileServer(http.Dir("frontend/static")))
 
 	r.HandleFunc("/*", func(w http.ResponseWriter, r *http.Request) {
 		wa.logger.Info("in the static handler", "path", r.URL.Path)
@@ -99,5 +106,6 @@ func (wa *WebApp) StaticRouter(r chi.Router) {
 }
 
 func (wa *WebApp) RootRouter(r chi.Router) {
-	r.Get("/*", pages.Handler(wa.logger))
+	rh := pages.NewRouteHandler(wa.config.SiteTitle, wa.config.FrontendPath, wa.logger)
+	r.Get("/*", rh.Handle)
 }
