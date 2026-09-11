@@ -65,34 +65,30 @@ func parseServeFlags(args []string) settings.Settings {
 	return s
 }
 
-func mergeServeSettings(args []string) (settings.Settings, error) {
+func mergeServeSettings(args []string, logger *slog.Logger) settings.Settings {
 	var s settings.Settings
 	c := parseServeFlags(args)
 	e, err := settings.ReadEnvVars()
 	if err != nil {
-		return s, err
+		logger.Warn("got error while reading env vars", "error message", err)
 	}
 	merge("config.yml", &s.ConfigFile, c.ConfigFile, e.ConfigFile)
 
 	f, err := settings.ReadSettingsFile(s.ConfigFile)
 	if err != nil {
-		return s, err
+		logger.Warn("got error while reading config file", "error message", err, "config file", s.ConfigFile)
 	}
 
 	merge("frontend/pages", &s.FrontendPath, c.FrontendPath, e.FrontendPath, f.FrontendPath)
 	merge(9753, &s.ServerPort, c.ServerPort, e.ServerPort, f.ServerPort)
 	merge("Maze Site", &s.SiteTitle, c.SiteTitle, e.SiteTitle, f.SiteTitle)
-	return s, nil
+	return s
 }
 
 func serve(args []string) {
 	logger := slog.New(slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelDebug}))
 
-	s, err := mergeServeSettings(args)
-	if err != nil {
-		logger.Error("App can't run!", slog.String("error", err.Error()))
-		return
-	}
+	s := mergeServeSettings(args, logger)
 
 	if err := runServer(logger, s); err != nil {
 		logger.Error("App can't run!", slog.String("error", err.Error()))
