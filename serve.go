@@ -13,15 +13,9 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/mbaklor/maze/paths"
 	"github.com/mbaklor/maze/routes/pages"
 	"github.com/mbaklor/maze/settings"
 )
-
-type TemplateInfo struct {
-	Path  string
-	Links []paths.Link
-}
 
 type WebApp struct {
 	logger *slog.Logger
