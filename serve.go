@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"flag"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
@@ -35,36 +36,88 @@ USAGE
 maze serve [flags]
 
 FLAGS
--c	--config	Path to server config file (default: "config.yml")
+-c	--config	Path to server config file							(default: "config.yml")
+-f	--files		Path to folder where markdown files are stored		(default: "frontend/pages")
+-p	--port		Port for server to listen on						(default "9753")
+-t	--title		Main title for the website, to show in <title> tag	(default: "Maze Site")
 
 GLOBAL FLAGS
 -h	--help		Print this usage message`
 
-func serve(args []string) {
+func parseServeFlags(args []string) settings.Settings {
+	var s settings.Settings
 	set := flag.NewFlagSet("serve", flag.ExitOnError)
 	set.Usage = UsageFunc(serveUsage)
-	var configPath string
-	set.StringVar(&configPath, "config", "config.yml", "path to server config file")
-	set.StringVar(&configPath, "c", "config.yml", "path to server config file")
+
+	set.StringVar(&s.ConfigFile, "config", "", "path to server config file")
+	set.StringVar(&s.ConfigFile, "c", "", "path to server config file")
+
+	set.StringVar(&s.FrontendPath, "files", "", "directory where markdown files are stored")
+	set.StringVar(&s.FrontendPath, "f", "", "directory where markdown files are stored")
+
+	set.IntVar(&s.ServerPort, "port", 0, "port for server")
+	set.IntVar(&s.ServerPort, "p", 0, "port for server")
+
+	set.StringVar(&s.SiteTitle, "title", "", "title for the website")
+	set.StringVar(&s.SiteTitle, "t", "", "title for the website")
 
 	set.Parse(args)
+	return s
+}
+
+func merge[T string | int](defaultValue T, target *T, sources ...T) {
+	var zeroVal T
+	for _, src := range sources {
+		if src != zeroVal {
+			*target = src
+			return
+		}
+	}
+	*target = defaultValue
+}
+
+func mergeSettings(args []string) (settings.Settings, error) {
+	var s settings.Settings
+	c := parseServeFlags(args)
+	e, err := settings.ReadEnvVars()
+	if err != nil {
+		return s, err
+	}
+	merge("config.yml", &s.ConfigFile, c.ConfigFile, e.ConfigFile)
+
+	f, err := settings.ReadSettingsFile(s.ConfigFile)
+	if err != nil {
+		return s, err
+	}
+
+	merge("frontend/pages", &s.FrontendPath, c.FrontendPath, e.FrontendPath, f.FrontendPath)
+	merge(9753, &s.ServerPort, c.ServerPort, e.ServerPort, f.ServerPort)
+	merge("Maze Site", &s.SiteTitle, c.SiteTitle, e.SiteTitle, f.SiteTitle)
+	return s, nil
+}
+
+func serve(args []string) {
 	logger := slog.New(slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelDebug}))
-	if err := runServer(logger, configPath); err != nil {
+
+	s, err := mergeSettings(args)
+	if err != nil {
+		logger.Error("App can't run!", slog.String("error", err.Error()))
+		return
+	}
+
+	if err := runServer(logger, s); err != nil {
 		logger.Error("App can't run!", slog.String("error", err.Error()))
 	}
 }
 
-func runServer(logger *slog.Logger, configFile string) error {
+func runServer(logger *slog.Logger, config settings.Settings) error {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 	r := chi.NewRouter()
+	addr := fmt.Sprintf(":%d", config.ServerPort)
 	server := &http.Server{
 		Handler: r,
-		Addr:    ":9753",
-	}
-	config, err := settings.ReadSettings(configFile)
-	if err != nil {
-		return err
+		Addr:    addr,
 	}
 
 	w := WebApp{logger, server, config}
@@ -82,7 +135,7 @@ func runServer(logger *slog.Logger, configFile string) error {
 		defer cancel()
 		shutdownErr = w.server.Shutdown(ctx)
 	}()
-	err = w.server.ListenAndServe()
+	err := w.server.ListenAndServe()
 	if err != nil && err != http.ErrServerClosed {
 		return errors.Join(err, shutdownErr)
 	}

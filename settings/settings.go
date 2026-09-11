@@ -2,20 +2,21 @@ package settings
 
 import (
 	"errors"
-	"fmt"
 	"os"
 
+	"github.com/mbaklor/go-env"
 	"go.yaml.in/yaml/v4"
 )
 
 type Settings struct {
-	FrontendPath string `yaml:"frontend_path,omitempty"`
-	ServerPort   int    `yaml:"server_port,omitempty"`
-	SiteTitle    string `yaml:"site_title,omitempty"`
+	ConfigFile   string `yaml:"-" env:"CONFIG_FILE"`
+	FrontendPath string `yaml:"frontend_path,omitempty" env:"FRONTEND_PATH"`
+	ServerPort   int    `yaml:"server_port,omitempty" env:"SERVER_PORT"`
+	SiteTitle    string `yaml:"site_title,omitempty" env:"SITE_TITLE"`
 }
 
-func ReadSettings(filename string) (Settings, error) {
-	s := Settings{"frontend/pages", 9753, "Maze Site"}
+func ReadSettingsFile(filename string) (Settings, error) {
+	var s Settings
 	f, err := os.Open(filename)
 	if errors.Is(err, os.ErrNotExist) {
 		return s, nil
@@ -30,6 +31,14 @@ func ReadSettings(filename string) (Settings, error) {
 		return s, err
 	}
 
-	fmt.Println(s)
 	return s, nil
+}
+
+func ReadEnvVars() (Settings, error) {
+	var c Settings
+	err := env.Load(&c)
+	if err != nil {
+		return c, err
+	}
+	return c, nil
 }
