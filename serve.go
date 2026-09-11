@@ -65,18 +65,7 @@ func parseServeFlags(args []string) settings.Settings {
 	return s
 }
 
-func merge[T string | int](defaultValue T, target *T, sources ...T) {
-	var zeroVal T
-	for _, src := range sources {
-		if src != zeroVal {
-			*target = src
-			return
-		}
-	}
-	*target = defaultValue
-}
-
-func mergeSettings(args []string) (settings.Settings, error) {
+func mergeServeSettings(args []string) (settings.Settings, error) {
 	var s settings.Settings
 	c := parseServeFlags(args)
 	e, err := settings.ReadEnvVars()
@@ -99,7 +88,7 @@ func mergeSettings(args []string) (settings.Settings, error) {
 func serve(args []string) {
 	logger := slog.New(slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelDebug}))
 
-	s, err := mergeSettings(args)
+	s, err := mergeServeSettings(args)
 	if err != nil {
 		logger.Error("App can't run!", slog.String("error", err.Error()))
 		return
