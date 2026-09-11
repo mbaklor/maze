@@ -24,23 +24,14 @@ OPTIONS
 serve			start the HTTP server
 version			print application version
 
-FLAGS
--c	--config	Path to server config file (default: "config.yml")
-
 GLOBAL FLAGS
 -h	--help		Print this usage message`
 
 func main() {
 	flag.Usage = UsageFunc(usage)
 
-	//need to make sure I have the flag in case we run with no command
-	var configPath string
-	flag.StringVar(&configPath, "config", "config.yml", "path to server config file")
-	flag.StringVar(&configPath, "c", "config.yml", "path to server config file")
-
-	flag.Parse()
-	if len(flag.Args()) == 0 {
-		serve(os.Args[1:])
+	if len(os.Args) == 1 {
+		flag.Usage()
 		return
 	}
 	command := os.Args[1]
