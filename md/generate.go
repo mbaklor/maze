@@ -13,6 +13,7 @@ func WriteMarkdownFile(path string, info MarkdownInfo) error {
 	if err != nil {
 		return err
 	}
+	defer f.Close()
 	return writeMarkdown(f, info)
 }
 
