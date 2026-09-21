@@ -30,9 +30,9 @@ USAGE
 maze serve [flags]
 
 FLAGS
--c	--config	Path to server config file							(default: "config.yml")
+-c	--config	Path to server config file				(default: "config.yml")
 -f	--files		Path to folder where markdown files are stored		(default: "frontend/pages")
--p	--port		Port for server to listen on						(default "9753")
+-p	--port		Port for server to listen on				(default "9753")
 -t	--title		Main title for the website, to show in <title> tag	(default: "Maze Site")
 
 GLOBAL FLAGS
