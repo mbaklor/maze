@@ -18,6 +18,13 @@ type markdownDate struct {
 	time.Time
 }
 
+func CurrentDate() markdownDate {
+	var md markdownDate
+	now := time.Now()
+	md.Time = time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local)
+	return md
+}
+
 func (m markdownDate) MarshalYAML() (any, error) {
 	s := m.Time.Format("2006-01-02")
 	return s, nil
@@ -36,6 +43,7 @@ func (m *markdownDate) UnmarshalYAML(unmarshal func(any) error) error {
 type MarkdownInfo struct {
 	Slug        string       `yaml:"slug,omitempty"`
 	Title       string       `yaml:"title,omitempty"`
+	PageTitle   string       `yaml:"page_title,omitempty"`
 	Description string       `yaml:"description,omitempty"`
 	Date        markdownDate `yaml:"date,omitempty"`
 	Tags        []string     `yaml:"tags,omitempty"`

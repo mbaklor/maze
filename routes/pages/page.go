@@ -40,8 +40,8 @@ func (rh RouteHandler) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	title := rh.title
-	if m.Info.Title != "" {
-		title = title + " - " + m.Info.Title
+	if m.Info.PageTitle != "" {
+		title = m.Info.PageTitle + " - " + title
 	}
 	info := routes.NewLayoutInfo(title, paths.BasePathFromUrl(r.URL.Path), rh.filepaths)
 	err = info.GenerateLinks()

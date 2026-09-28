@@ -38,6 +38,8 @@ func main() {
 	switch command {
 	case "serve":
 		serve(os.Args[2:])
+	case "generate":
+		generate(os.Args[2:])
 	case "version":
 		printVersion()
 	default:
