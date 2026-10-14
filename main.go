@@ -22,6 +22,7 @@ maze [option] [flags]
 
 OPTIONS
 serve			start the HTTP server
+generate		create a new page file with the expected frontmatter fields
 version			print application version
 
 GLOBAL FLAGS

@@ -41,12 +41,12 @@ func (m *markdownDate) UnmarshalYAML(unmarshal func(any) error) error {
 }
 
 type MarkdownInfo struct {
-	Slug        string       `yaml:"slug,omitempty"`
-	Title       string       `yaml:"title,omitempty"`
-	PageTitle   string       `yaml:"page_title,omitempty"`
-	Description string       `yaml:"description,omitempty"`
-	Date        markdownDate `yaml:"date,omitempty"`
-	Tags        []string     `yaml:"tags,omitempty"`
+	Title       string       `yaml:"title"`
+	Description string       `yaml:"description"`
+	Slug        string       `yaml:"slug"`
+	PageTitle   string       `yaml:"page_title"`
+	Date        markdownDate `yaml:"date"`
+	Tags        []string     `yaml:"tags"`
 }
 
 type Markdown struct {

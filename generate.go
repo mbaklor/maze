@@ -4,13 +4,13 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"time"
 
 	"github.com/mbaklor/maze/md"
 )
 
 type generateConfig struct {
 	md.MarkdownInfo
+	filepath string
 }
 
 const generateUsage = `Maze: dynamic markdown static page server
@@ -55,9 +55,9 @@ func parseGenerateFlags(args []string) generateConfig {
 	})
 
 	set.Parse(args)
-	gc.Slug = set.Arg(0)
+	gc.filepath = set.Arg(0)
 
-	if gc.Slug == "" {
+	if gc.filepath == "" {
 		fmt.Fprint(os.Stderr, "need a path for file\n\n")
 		set.Usage()
 		os.Exit(1)
@@ -69,6 +69,9 @@ func parseGenerateFlags(args []string) generateConfig {
 		os.Exit(1)
 	}
 
+	if gc.PageTitle == "" {
+		gc.PageTitle = gc.Title
+	}
 	gc.Date = md.CurrentDate()
 	return gc
 }
@@ -86,5 +89,8 @@ func generate(args []string) {
 	} else {
 		gc = parseGenerateFlags(args)
 	}
-	fmt.Printf("date: %v, now: %v\n", gc.Date, time.Now().Local())
+	if err := md.WriteMarkdownFile(gc.filepath, gc.MarkdownInfo); err != nil {
+		fmt.Fprintf(os.Stderr, "Could not generate file %s: %s", gc.filepath, err)
+	}
+
 }

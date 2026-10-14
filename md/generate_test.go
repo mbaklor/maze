@@ -10,8 +10,10 @@ import (
 )
 
 const genFrontmatter = `---
-slug: test-slug
 title: test title
+description: ""
+slug: test-slug
+page_title: ""
 date: "2026-03-25"
 tags:
   - one
