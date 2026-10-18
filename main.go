@@ -4,20 +4,18 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"runtime/debug"
 )
 
 func UsageFunc(s string) func() {
 	return func() {
-		fmt.Fprintln(os.Stderr, s)
+		fmt.Fprintf(os.Stderr, "Maze: dynamic markdown static page server\nversion: %s\n\n%s\n", version, s)
 	}
 }
 
-const version = "0.0.2"
+var version = "develop"
 
-const usage = `Maze: dynamic markdown static page server
-version ` + version + `
-
-USAGE
+const usage = `USAGE
 maze [option] [flags]
 
 OPTIONS
@@ -48,6 +46,19 @@ func main() {
 	}
 }
 
+func readVersion() string {
+	if version != "develop" {
+		return version
+	}
+	info, ok := debug.ReadBuildInfo()
+	if ok {
+		if info.Main.Version != "(devel)" && info.Main.Version != "" {
+			return info.Main.Version
+		}
+	}
+	return version
+}
+
 func printVersion() {
-	fmt.Fprintf(os.Stderr, "maze version: %s\n", version)
+	fmt.Fprintf(os.Stderr, "Maze version: %s\n", readVersion())
 }

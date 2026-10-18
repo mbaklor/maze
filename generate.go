@@ -13,10 +13,7 @@ type generateConfig struct {
 	filepath string
 }
 
-const generateUsage = `Maze: dynamic markdown static page server
-version ` + version + `
-
-USAGE
+const generateUsage = `USAGE
 maze generate [flags] <page-path>
 
 REQUIRED ARGUMENT

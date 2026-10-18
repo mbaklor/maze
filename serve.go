@@ -23,10 +23,7 @@ type WebApp struct {
 	config settings.Settings
 }
 
-const serveUsage = `Maze: dynamic markdown static page server
-version ` + version + `
-
-USAGE
+const serveUsage = `USAGE
 maze serve [flags]
 
 FLAGS
