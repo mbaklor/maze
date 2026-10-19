@@ -5,11 +5,12 @@ import (
 	"fmt"
 	"os"
 	"runtime/debug"
+	"strings"
 )
 
 func UsageFunc(s string) func() {
 	return func() {
-		fmt.Fprintf(os.Stderr, "Maze: dynamic markdown static page server\nversion: %s\n\n%s\n", version, s)
+		fmt.Fprintf(os.Stderr, "Maze: dynamic markdown static page server\nversion: %s\n\n%s\n", readVersion(), s)
 	}
 }
 
@@ -53,7 +54,24 @@ func readVersion() string {
 	info, ok := debug.ReadBuildInfo()
 	if ok {
 		if info.Main.Version != "(devel)" && info.Main.Version != "" {
-			return info.Main.Version
+			vsplit := strings.FieldsFunc(info.Main.Version, func(r rune) bool {
+				return r == '-' || r == '+'
+			})
+			if len(vsplit) == 1 {
+				return vsplit[0]
+			}
+			v := vsplit[0]
+			hash := ""
+			dirty := ""
+			for _, s := range info.Settings {
+				if s.Key == "vcs.revision" {
+					hash = "-" + s.Value[:7]
+				}
+				if s.Key == "vcs.modified" && s.Value == "true" {
+					dirty = "-modified"
+				}
+			}
+			return v + hash + dirty
 		}
 	}
 	return version
